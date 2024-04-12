@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Project;
 use Illuminate\Http\Request;
 
 class ProjectController extends Controller
@@ -14,7 +15,8 @@ class ProjectController extends Controller
      */
     public function index()
     {
-        //
+        $project = Project::select('id', 'type_id', 'user_id', 'title', 'description', 'image_preview')->with(['type', 'technologies'])->paginate(10);
+        return response()->json($project);
     }
 
     /**
