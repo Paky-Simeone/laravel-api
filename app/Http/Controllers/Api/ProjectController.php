@@ -15,52 +15,36 @@ class ProjectController extends Controller
      */
     public function index()
     {
-        $project = Project::select('id', 'type_id', 'user_id', 'title', 'description', 'image_preview')->with(['type', 'technologies'])->paginate(10);
-        return response()->json($project);
-    }
+        $projects = Project::select('id', 'type_id', 'user_id', 'title', 'description', 'image_preview', )
+        ->orderBy('updated_at', 'DESC')
+        ->with(['type', 'technologies'])
+        ->paginate();
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
+        foreach ($projects as $project) {
+            $project->image = !empty($project->image) ? asset('/storage/' . $project->image) : null;
+            $project->description = $project->getAbstract(30);
+        }
+
+        return response()->json($projects);
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param  int  $title
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($title)
     {
-        //
+        $project = Project::select('id', 'type_id', 'user_id', 'title', 'description', 'image_preview', )
+        ->where('title', $title)
+        ->with(['type', 'technologies'])
+        ->first();
+
+        $project->image = !empty($project->image) ? asset('/storage/' . $project->image) : null;
+        $project->description = $project->getAbstract(30);
+
+        return response()->json($project);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
-    }
 }
